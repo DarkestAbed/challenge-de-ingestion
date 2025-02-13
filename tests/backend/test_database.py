@@ -1,6 +1,6 @@
 # tests/backend/database.py
 
-from app.backend.lib.database import Database
+from app.backend.lib.database import Database, heartbeat, setup_init
 
 
 DB_TYPE: str = "sqlite"
@@ -41,3 +41,13 @@ def test_check_sqlite_db_tables():
         if check:
             cnt_tables += 1
     assert cnt_tables == 3
+
+
+def test_heartbeat():
+    result = heartbeat()
+    assert result is True
+
+
+def test_startup_setup():
+    result = setup_init()
+    assert result is None

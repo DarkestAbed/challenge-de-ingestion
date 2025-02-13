@@ -134,3 +134,14 @@ def heartbeat() -> bool:
     db: Database = Database(db_type="sqlite")
     connection: bool = db.check_connection()
     return connection
+
+
+def setup_init() -> None:
+    TABLES: list[str] = ["hired_employees", "departments", "jobs"]
+    db: Database = Database(db_type="sqlite")
+    db.setup_sqlite_db()
+    for table in TABLES:
+        val: bool = db.check_table(table_name=table)
+        if not val:
+            raise SQLiteDatabaseException
+    return None

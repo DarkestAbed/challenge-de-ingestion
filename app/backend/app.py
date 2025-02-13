@@ -1,8 +1,9 @@
 # app/backend/app.py
 
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.backend.lib.database import heartbeat
+from app.backend.lib.database import heartbeat, setup_init
 
 
 app = FastAPI(
@@ -11,9 +12,15 @@ app = FastAPI(
     summary="",
     description="",
     version="0.1.0",
-    on_startup=None,
-    on_shutdown=None,
 )
+
+
+@asynccontextmanager
+async def lifespan():
+    setup_init()
+    yield
+    # cleanup database
+    ...
 
 
 @app.get("/")
