@@ -4,9 +4,9 @@ from dataclasses import dataclass
 from icecream import ic
 from os import getcwd
 from os.path import exists, join
-from sqlite3 import connect, Connection, OperationalError
-from sqlalchemy import Engine
-from sqlmodel import SQLModel, Field, create_engine
+from sqlite3 import connect, Connection
+from sqlalchemy import text, Engine
+from sqlmodel import SQLModel, Session, Field, create_engine
 from traceback import print_exc
 from typing import Any, Literal, Optional
 
@@ -20,8 +20,8 @@ class HiredEmployees(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: Optional[str]
     datetime: Optional[str]
-    department_id: int
-    job_id: int
+    department_id: int = Field(foreign_key="departments.id")
+    job_id: int = Field(foreign_key="jobs.id")
 
 class Departments(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -59,31 +59,24 @@ class Database(metaclass=Singleton):
             # setup database
             self.setup_db()
             # check database
+            self.check_connection()
         elif self.db_type == "mysql":
             raise NotImplementedError
         elif self.db_type == "postgres":
             raise NotImplementedError
+        print("Database successfully initialized.")
         return None
     
-    # methods
     def check_connection(self) -> bool:
-        if self.db_type == "sqlite":
+        with self.engine.connect() as conn:
             try:
-                conn: Connection = connect(database=self.db_uri)
-                conn.close()
+                conn.execute(text("SELECT 1"))
                 return True
-            except OperationalError:
-                return False
-            except Exception:
-                return False
-        elif self.db_type == "mysql":
-            ic("MySQL connection not implemented")
-            return False
-        elif self.db_type == "postgres":
-            ic("PostgreSQL connection not implemented")
-            return False
-        else:
-            raise Exception
+            except Exception as e:
+                print("An exception occurred:")
+                ic(e)
+                print_exc()
+                raise DatabaseException
     
     def setup_db(self) -> None:
         ic(self.db_uri, self.db_loc, self.db_type, self.engine)
@@ -97,13 +90,23 @@ class Database(metaclass=Singleton):
         try:
             SQLModel.metadata.create_all(bind=self.engine, checkfirst=True)
         except Exception as e:
+            print("An exception occurred:")
             ic(e)
             print_exc()
             raise DatabaseException
         return None
     
     def check_table(self, table_name: str) -> bool:
-        return True
+        ic(SQLModel.metadata.tables, SQLModel.metadata.tables.keys())
+        tables: list[Any] = SQLModel.metadata.tables.keys()     # type: ignore
+        ic(tables)
+        if table_name in tables:
+            return True
+        else:
+            return False
 
     def query(self, query_str: str) -> Any:
         return ""
+    
+    def heartbeat(self) -> bool:
+        return self.check_connection()

@@ -3,12 +3,13 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
-from app.backend.lib.database import heartbeat, setup_init
+from app.backend.assets.config import DB_TYPE
+from app.backend.lib.database import Database
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_init()
+    _: Database = Database(db_type=DB_TYPE)        # type: ignore
     yield
     # cleanup database
     ...
@@ -31,7 +32,8 @@ async def _():
 
 @app.get("/heartbeat")
 async def _():
-    response: bool = heartbeat()
+    db: Database = Database(db_type=DB_TYPE)        # type: ignore
+    response: bool = db.heartbeat()
     if response:
         return {"HEARTBEAT": 1}
     else:

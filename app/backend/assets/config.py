@@ -8,3 +8,4 @@ DB_URIS: dict[str, str] = {
     "mysql": DB_MYSQL_URI_TEMPLATE,
     "postgres": DB_POSTGRES_URI_TEMPLATE,
 }
+DB_TYPE: str = "sqlite"

@@ -13,11 +13,9 @@ def test_create_sqlite_db_object():
 
 
 def test_check_sqlite_db_file():
-    from os.path import exists, join
-    from app.backend.assets.config import DB_LOCATION
-    db_file: str = join(DB_LOCATION, "prod.db")
-    _: Database = Database(db_type=DB_TYPE)        # type: ignore
-    assert exists(db_file) is True
+    from os.path import exists
+    db: Database = Database(db_type=DB_TYPE)        # type: ignore
+    assert exists(db.db_loc) is True
 
 
 def test_check_sqlite_db_connection():
@@ -26,17 +24,11 @@ def test_check_sqlite_db_connection():
     assert result is True
 
 
-def test_setup_sqlite_db():
-    db: Database = Database(db_type=DB_TYPE)        # type: ignore
-    result = db.setup_sqlite_db()
-    assert result is True
-
-
 def test_check_sqlite_db_tables():
-    TABLES_LIST: list[str] = ["departments", "hired_employees", "jobs"]
+    from app.backend.assets.tables import TABLES
     db: Database = Database(db_type=DB_TYPE)        # type: ignore
     cnt_tables: int = 0
-    for table in TABLES_LIST:
+    for table in TABLES:
         check: bool = db.check_table(table_name=table)
         if check:
             cnt_tables += 1
@@ -44,10 +36,6 @@ def test_check_sqlite_db_tables():
 
 
 def test_heartbeat():
-    result = heartbeat()
+    db: Database = Database(db_type=DB_TYPE)        # type: ignore
+    result = db.heartbeat()
     assert result is True
-
-
-def test_startup_setup():
-    result = setup_init()
-    assert result is None
