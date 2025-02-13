@@ -1,12 +1,14 @@
 # tests/backend/database.py
+"""
+The tests are tailored to a SQLite experience. However, extensibility is possible using SQLModel and SQLAlchemy packages.
+# TODO:
+Implement functionality for a MySQL and a PostgreSQL database
+"""
 
+from app.backend.assets.config import DB_TYPE
 from app.backend.lib.database import Database
 
 
-DB_TYPE: str = "sqlite"
-
-
-# sqlite database tests
 def test_create_sqlite_db_object():
     db: Database = Database(db_type=DB_TYPE)        # type: ignore
     assert isinstance(db, Database)
@@ -33,6 +35,12 @@ def test_check_sqlite_db_tables():
         if check:
             cnt_tables += 1
     assert cnt_tables == 3
+
+
+def test_get_sqlite_db_tables():
+    db: Database = Database(db_type=DB_TYPE)        # type: ignore
+    result = db.get_tables()
+    assert isinstance(result, list)
 
 
 def test_heartbeat():

@@ -6,7 +6,6 @@ from fastapi import FastAPI
 from app.backend.assets.config import DB_TYPE
 from app.backend.lib.database import Database
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     _: Database = Database(db_type=DB_TYPE)        # type: ignore
@@ -23,6 +22,7 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,      # type: ignore
 )
+db: Database = Database(db_type=DB_TYPE)        # type: ignore
 
 
 @app.get("/")
@@ -32,7 +32,6 @@ async def _():
 
 @app.get("/heartbeat")
 async def _():
-    db: Database = Database(db_type=DB_TYPE)        # type: ignore
     response: bool = db.heartbeat()
     if response:
         return {"HEARTBEAT": 1}
@@ -40,6 +39,12 @@ async def _():
         return {"HEARTBEAT": 0}
 
 
-@app.get("/tables/")
+@app.get("/tables")
 async def _():
+    response: list[str] = db.get_tables()
+    return {"tables": response}
+
+
+@app.post("/tables/{tablename}")
+async def _(tablename: str):
     return {"status": "wip"}
