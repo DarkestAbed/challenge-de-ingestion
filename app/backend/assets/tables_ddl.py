@@ -1,5 +1,6 @@
 # app/backend/asserts/tables_ddl.py
 
+TABLES: list[str] = ["hired_employees", "departments", "jobs"]
 HIRED_EMPLOYEES: str = """
 CREATE TABLE IF NOT EXISTS
     hired_employees

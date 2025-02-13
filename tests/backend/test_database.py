@@ -1,6 +1,6 @@
 # tests/backend/database.py
 
-from app.backend.lib.database import Database, heartbeat, setup_init
+from app.backend.lib.database import Database
 
 
 DB_TYPE: str = "sqlite"
