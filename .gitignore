@@ -13,6 +13,8 @@ wheels/
 # custom ignores
 ## folders
 venv/
+.vscode/
+.mypy_cache/
 ## files
 *.pyc
 *.log

@@ -52,6 +52,8 @@ idna==3.10
     # via
     #   anyio
     #   httpx
+iniconfig==2.0.0
+    # via pytest
 itsdangerous==2.2.0
     # via python-fasthtml
 numpy==2.2.2
@@ -59,15 +61,21 @@ numpy==2.2.2
 oauthlib==3.2.2
     # via python-fasthtml
 packaging==24.2
-    # via fastcore
+    # via
+    #   fastcore
+    #   pytest
 pandas==2.2.3
     # via -r requirements.in
+pluggy==1.5.0
+    # via pytest
 pydantic==2.10.6
     # via fastapi
 pydantic-core==2.27.2
     # via pydantic
 pygments==2.19.1
     # via icecream
+pytest==8.3.4
+    # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via
     #   pandas
