@@ -11,6 +11,8 @@ apsw==3.49.0.0
     # via apswutils
 apswutils==0.0.2
     # via fastlite
+asttokens==3.0.0
+    # via icecream
 beautifulsoup4==4.13.3
     # via python-fasthtml
 certifi==2025.1.31
@@ -19,8 +21,12 @@ certifi==2025.1.31
     #   httpx
 click==8.1.8
     # via uvicorn
+colorama==0.4.6
+    # via icecream
 duckdb==1.2.0
     # via -r requirements.in
+executing==2.2.0
+    # via icecream
 fastapi==0.115.8
     # via -r requirements.in
 fastcore==1.7.29
@@ -40,6 +46,8 @@ httptools==0.6.4
     # via uvicorn
 httpx==0.28.1
     # via python-fasthtml
+icecream==2.1.4
+    # via -r requirements.in
 idna==3.10
     # via
     #   anyio
@@ -58,6 +66,8 @@ pydantic==2.10.6
     # via fastapi
 pydantic-core==2.27.2
     # via pydantic
+pygments==2.19.1
+    # via icecream
 python-dateutil==2.9.0.post0
     # via
     #   pandas
