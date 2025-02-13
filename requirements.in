@@ -1,6 +1,7 @@
 duckdb
-fastapi
+fastapi[standard]
 icecream
 pandas
 pytest
 python-fasthtml
+sqlmodel
