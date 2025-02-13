@@ -4,20 +4,38 @@ from dataclasses import dataclass
 from icecream import ic
 from os import getcwd
 from os.path import exists, join
-from sqlite3 import connect, OperationalError, Connection, Cursor
+from sqlite3 import connect, Connection, OperationalError
 from sqlalchemy import Engine
 from sqlmodel import SQLModel, Field, create_engine
+from traceback import print_exc
 from typing import Any, Literal, Optional
 
 from app.backend.assets.config import DB_URIS
-from app.backend.assets.tables_ddl import TABLES_DDL_DEFS, TABLES
-from app.backend.lib.exceptions import SQLiteDatabaseException
+from app.backend.lib.exceptions import DatabaseException
 from app.backend.utils.singletons import Singleton
+
+
+# sqlmodel table classes
+class HiredEmployees(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: Optional[str]
+    datetime: Optional[str]
+    department_id: int
+    job_id: int
+
+class Departments(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    department: str
+
+class Jobs(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    job: str
 
 
 @dataclass
 class Database(metaclass=Singleton):
     db_uri: str
+    db_loc: str
     db_type: Literal["sqlite", "mysql", "postgres"]
     engine: Engine
 
@@ -31,23 +49,23 @@ class Database(metaclass=Singleton):
         ic(self.db_uri)
         if self.db_type == "sqlite":
             # complete uri
-            db_uri_complete: str = f"{self.db_uri}"
-            # check database
-            # try:
-            #     created_db_fg: bool = self.check_sqlite_db()
-            # except SQLiteDatabaseException:
-            #     raise SQLiteDatabaseException
-            # if not created_db_fg:
-            #     raise SQLiteDatabaseException
+            self.db_loc: str = join(getcwd(), "app", "backend", "db", "prod.db")
+            db_uri_complete: str = f"{self.db_uri.replace("fileloc", f"/{self.db_loc}")}"
+            ic(db_uri_complete)
+            self.db_uri = db_uri_complete
+            ic(self.db_uri)
+            # create engine
+            self.engine = create_engine(url=self.db_uri, echo=True)
             # setup database
-            # Database.setup_init()
+            self.setup_db()
+            # check database
         elif self.db_type == "mysql":
             raise NotImplementedError
         elif self.db_type == "postgres":
             raise NotImplementedError
         return None
     
-    # common methods
+    # methods
     def check_connection(self) -> bool:
         if self.db_type == "sqlite":
             try:
@@ -67,56 +85,25 @@ class Database(metaclass=Singleton):
         else:
             raise Exception
     
-    # sqlmodel tables subclasses
-    class HiredEmployees(SQLModel, table=True):
-        id: Optional[int] = Field(default=None, primary_key=True)
-        name: str
-        datetime: str
-        department_id: int
-        job_id: int
-    
-    class Departments(SQLModel, table=True):
-        id: Optional[int] = Field(default=None, primary_key=True)
-        department: str
-    
-    class Jobs(SQLModel, table=True):
-        id: Optional[int] = Field(default=None, primary_key=True)
-        job: str
-    
-    # sqlite methods
-    def check_db(self) -> bool:
-        return True
-    
-    def setup_db(self) -> bool:
-        return True
+    def setup_db(self) -> None:
+        ic(self.db_uri, self.db_loc, self.db_type, self.engine)
+        if self.db_type == "sqlite":
+            if not exists(self.db_loc):
+                print("SQLite database file not found. Creating db file...")
+                conn: Connection = connect(database=self.db_loc)
+                conn.close()
+            else:
+                print("SQLite database file found. Proceeding...")
+        try:
+            SQLModel.metadata.create_all(bind=self.engine, checkfirst=True)
+        except Exception as e:
+            ic(e)
+            print_exc()
+            raise DatabaseException
+        return None
     
     def check_table(self, table_name: str) -> bool:
-        q: str = """
-        SELECT
-            name
-        FROM
-            sqlite_schema
-        WHERE
-            type = "table"
-            AND name NOT LIKE "sqlite_%"
-        """
-        conn: Connection = connect(database=self.db_uri)
-        exec: Cursor = conn.execute(q)
-        result: list = exec.fetchall()
-        tables: list[str] = []
-        for table in result:
-            tables.append(table[0])
-        ic(result, tables)
-        if table_name in tables:
-            return True
-        else:
-            return False
+        return True
 
     def query(self, query_str: str) -> Any:
         return ""
-
-    @staticmethod
-    def heartbeat() -> bool:
-        db: Database = Database(db_type="sqlite")
-        connection: bool = db.check_connection()
-        return connection

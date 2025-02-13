@@ -1,4 +1,4 @@
 # app/backend/lib/exceptions.py
 
-class SQLiteDatabaseException(Exception):
+class DatabaseException(Exception):
     pass
