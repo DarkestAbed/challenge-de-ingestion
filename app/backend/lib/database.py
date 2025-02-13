@@ -137,6 +137,7 @@ def heartbeat() -> bool:
 
 
 def setup_init() -> None:
+    print("Initializing SQLite database setup...")
     TABLES: list[str] = ["hired_employees", "departments", "jobs"]
     db: Database = Database(db_type="sqlite")
     db.setup_sqlite_db()
@@ -144,4 +145,5 @@ def setup_init() -> None:
         val: bool = db.check_table(table_name=table)
         if not val:
             raise SQLiteDatabaseException
+    print("SQLite database setup complete. Proceeding...")
     return None
