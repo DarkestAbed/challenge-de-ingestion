@@ -12,13 +12,13 @@ wheels/
 
 # custom ignores
 ## folders
-output/*
-!output/.gitkeep
+output/
 venv/
 .vscode/
 .mypy_cache/
 .pytest_cache/
 ## files
+!output/.gitkeep
 .env
 *.db
 *.pyc

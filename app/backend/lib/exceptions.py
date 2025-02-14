@@ -6,3 +6,7 @@ class DatabaseException(Exception):
 
 class UploadException(Exception):
     pass
+
+
+class InsertException(Exception):
+    pass
