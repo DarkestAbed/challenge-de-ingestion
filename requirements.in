@@ -1,8 +1,10 @@
+coverage
 duckdb
 fastapi[standard]
 icecream
 pandas
 pytest
+pytest-cov
 python-fasthtml
 python-multipart
 sqlmodel

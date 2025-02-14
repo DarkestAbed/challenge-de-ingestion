@@ -26,6 +26,10 @@ click==8.1.8
     #   uvicorn
 colorama==0.4.6
     # via icecream
+coverage==7.6.12
+    # via
+    #   -r requirements.in
+    #   pytest-cov
 dnspython==2.7.0
     # via email-validator
 duckdb==1.2.0
@@ -101,6 +105,10 @@ pygments==2.19.1
     #   icecream
     #   rich
 pytest==8.3.4
+    # via
+    #   -r requirements.in
+    #   pytest-cov
+pytest-cov==6.0.0
     # via -r requirements.in
 python-dateutil==2.9.0.post0
     # via

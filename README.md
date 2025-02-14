@@ -95,10 +95,10 @@ uv.lock                 :
 
 ## Tech stack
 
-**Language**: Python 3.13
-**API development**: FastAPI
-**Web development**: FastHTML
-**Containerization**: Docker
+* **Language**: Python 3.13
+* **API development**: FastAPI
+* **Web development**: FastHTML
+* **Containerization**: Docker
 
 ## Automations
 In this section the Makefile recipes are described.
