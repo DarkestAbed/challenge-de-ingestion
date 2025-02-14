@@ -5,7 +5,7 @@ from fastapi import FastAPI, UploadFile, HTTPException
 from os.path import join
 from typing import Any
 
-from app.backend.assets.config import DB_TYPE, OUTPUT_LOCATION, icl
+from app.backend.assets.config import DB_TYPE, icl
 from app.backend.lib.database import Database
 
 @asynccontextmanager
@@ -58,17 +58,8 @@ async def _(tablename: str, file: UploadFile):
     icl(file.content_type, file.filename, file.headers, file.size)
     check_table: bool = db.check_table(table_name=tablename)
     if not check_table:
-        return HTTPException(status_code=404, detail="Table does not exists")
-    try:
-        if file.filename is not None:
-            file_loc: str = join(OUTPUT_LOCATION, file.filename)
-        else:
-            return HTTPException(status_code=402, detail="Empty file uploaded")
-        contents: Any = file.file.read().decode("utf-8")
-        icl(contents)
-        with open(file=file_loc, mode="w") as f:
-            f.write(contents)
-    except Exception as e:
-        ...
-
+        raise HTTPException(status_code=404, detail="Table does not exists")
+    if not file.content_type == "text/csv":
+        raise HTTPException(status_code=400, detail="Wrong type of file uploaded")
+    
     return {"status": "wip", "requested_table": tablename}

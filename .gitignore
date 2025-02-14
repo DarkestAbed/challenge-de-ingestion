@@ -12,6 +12,8 @@ wheels/
 
 # custom ignores
 ## folders
+output/*
+!output/.gitkeep
 venv/
 .vscode/
 .mypy_cache/

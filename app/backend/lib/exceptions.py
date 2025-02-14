@@ -2,3 +2,7 @@
 
 class DatabaseException(Exception):
     pass
+
+
+class UploadException(Exception):
+    pass
