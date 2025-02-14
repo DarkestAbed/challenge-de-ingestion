@@ -112,6 +112,7 @@ python-fasthtml==0.12.1
     # via -r requirements.in
 python-multipart==0.0.20
     # via
+    #   -r requirements.in
     #   fastapi
     #   python-fasthtml
 pytz==2025.1

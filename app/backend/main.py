@@ -1,9 +1,11 @@
 # app/backend/app.py
 
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, HTTPException
+from os.path import join
+from typing import Any
 
-from app.backend.assets.config import DB_TYPE
+from app.backend.assets.config import DB_TYPE, OUTPUT_LOCATION, icl
 from app.backend.lib.database import Database
 
 @asynccontextmanager
@@ -45,6 +47,28 @@ async def _():
     return {"tables": response}
 
 
-@app.post("/tables/{tablename}")
+@app.get("/tables/{tablename}")
 async def _(tablename: str):
-    return {"status": "wip"}
+    response: bool = db.check_table(table_name=tablename)
+    return {"table": tablename, "exists": response}
+
+
+@app.post("/tables/{tablename}")
+async def _(tablename: str, file: UploadFile):
+    icl(file.content_type, file.filename, file.headers, file.size)
+    check_table: bool = db.check_table(table_name=tablename)
+    if not check_table:
+        return HTTPException(status_code=404, detail="Table does not exists")
+    try:
+        if file.filename is not None:
+            file_loc: str = join(OUTPUT_LOCATION, file.filename)
+        else:
+            return HTTPException(status_code=402, detail="Empty file uploaded")
+        contents: Any = file.file.read().decode("utf-8")
+        icl(contents)
+        with open(file=file_loc, mode="w") as f:
+            f.write(contents)
+    except Exception as e:
+        ...
+
+    return {"status": "wip", "requested_table": tablename}

@@ -4,4 +4,5 @@ icecream
 pandas
 pytest
 python-fasthtml
+python-multipart
 sqlmodel
