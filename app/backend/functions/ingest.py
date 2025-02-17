@@ -19,7 +19,7 @@ def _get_table_header(table_name: str) -> list[str]:
     return table_metadata.columns.keys()
 
 
-def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) -> DataFrame:
+def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) -> tuple[DataFrame, str]:
     # write file to tmp storage
     try:
         if file.filename is not None:
@@ -47,7 +47,7 @@ def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) ->
     if not len(names) == len(ingest_pd.columns):
         raise AttributeError
     icl(ingest_pd)
-    return ingest_pd
+    return (ingest_pd, file_loc)
 
 
 def main() -> None:

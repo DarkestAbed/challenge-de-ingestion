@@ -4,4 +4,19 @@ version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "fastapi[standard]>=0.115.8",
+    "icecream>=2.1.4",
+    "pandas>=2.2.3",
+    "python-multipart>=0.0.20",
+    "sqlmodel>=0.0.22",
+]
+
+[project.optional-dependencies]
+backend = [
+    "fastapi[standard]>=0.115.8",
+    "icecream>=2.1.4",
+    "pandas>=2.2.3",
+    "python-multipart>=0.0.20",
+    "sqlmodel>=0.0.22",
+]

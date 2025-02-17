@@ -1,0 +1,7 @@
+# app/backend/.dockerignore
+
+# folders
+__pycache__/
+documentation/
+# files
+.gitkeep/

@@ -2,13 +2,14 @@
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, HTTPException
-from os.path import join
+from os import remove
 from pandas import DataFrame
-from typing import Optional
+from typing import Any, Optional
 
 from app.backend.assets.config import DB_TYPE, icl
 from app.backend.functions.ingest import ingest_file
 from app.backend.functions.load import load_data_into_db, dedupe_data_on_table
+from app.backend.functions.lookup import get_data_snippet
 from app.backend.lib.database import Database
 from app.backend.lib.exceptions import DatabaseException, InsertException, UploadException
 
@@ -54,7 +55,14 @@ async def _():
 @app.get("/tables/{tablename}")
 async def _(tablename: str):
     response: bool = db.check_table(table_name=tablename)
-    return {"table": tablename, "exists": response}
+    if response:
+        snippet: Any = get_data_snippet(table_name=tablename)
+    else:
+        raise HTTPException(status_code=404, detail="Table not found")
+    if snippet is False:
+        return {"table": tablename, "details": "Table is empty"}
+    else:
+        return {"table": tablename, "data_preview": snippet}
 
 
 @app.post("/tables/{tablename}")
@@ -69,11 +77,14 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
     ## reading in
     try:
         if rows_to_ingest is None:
-            ingested_data: DataFrame = ingest_file(file=file, table=tablename)
+            result: tuple[DataFrame, str] = ingest_file(file=file, table=tablename)
         elif isinstance(rows_to_ingest, int):
             if rows_to_ingest < 0 or rows_to_ingest > 1000:
                 raise ValueError
-            ingested_data: DataFrame = ingest_file(file=file, table=tablename, num_rows=rows_to_ingest)
+            result = ingest_file(file=file, table=tablename, num_rows=rows_to_ingest)
+        ingested_data: DataFrame = result[0]
+        file_location: str = result[1]
+        icl(file_location)
     except UploadException:
         raise HTTPException(status_code=400)
     except AttributeError:
@@ -100,5 +111,6 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
         icl(e)
         raise HTTPException(status_code=500)
     # cleaning up fs
+    remove(path=file_location)
     # wrap up
     return {"status": "upload complete", "requested_table": tablename, "affected_rows": affected_rows}
