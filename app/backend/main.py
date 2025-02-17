@@ -32,12 +32,12 @@ app = FastAPI(
 db: Database = Database(db_type=DB_TYPE)        # type: ignore
 
 
-@app.get("/")
+@app.get(path="/")
 async def _():
     return {"message": "Hello, world!"}
 
 
-@app.get("/heartbeat")
+@app.get(path="/heartbeat")
 async def _():
     response: bool = db.heartbeat()
     if response:
@@ -46,13 +46,13 @@ async def _():
         return {"HEARTBEAT": 0}
 
 
-@app.get("/tables")
+@app.get(path="/tables")
 async def _():
     response: list[str] = db.get_tables()
     return {"tables": response}
 
 
-@app.get("/tables/{tablename}")
+@app.get(path="/tables/{tablename}")
 async def _(tablename: str):
     response: bool = db.check_table(table_name=tablename)
     if response:
@@ -65,7 +65,7 @@ async def _(tablename: str):
         return {"table": tablename, "data_preview": snippet}
 
 
-@app.post("/tables/{tablename}")
+@app.post(path="/tables/{tablename}")
 async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = None, dedupe: Optional[bool] = None):
     icl(file.content_type, file.filename, file.headers, file.size)
     check_table: bool = db.check_table(table_name=tablename)
@@ -114,3 +114,8 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
     remove(path=file_location)
     # wrap up
     return {"status": "upload complete", "requested_table": tablename, "affected_rows": affected_rows}
+
+
+@app.post(path="/startProcess")
+def _(init: bool) -> None:
+    return None

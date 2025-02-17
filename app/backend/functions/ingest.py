@@ -19,6 +19,16 @@ def _get_table_header(table_name: str) -> list[str]:
     return table_metadata.columns.keys()
 
 
+def _ingest_csv_data(file_location: str, names_list: list[str], num_rows: Optional[int]) -> DataFrame:
+    if num_rows is None:
+        ingest_pd: DataFrame = read_csv(filepath_or_buffer=file_location, sep=",", header=None, names=names_list)
+    elif isinstance(num_rows, int) and num_rows > 0 and num_rows <= 1000:
+        ingest_pd: DataFrame = read_csv(filepath_or_buffer=file_location, sep=",", header=None, names=names_list, nrows=num_rows)
+    else:
+        raise SyntaxError
+    return ingest_pd
+
+
 def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) -> tuple[DataFrame, str]:
     # write file to tmp storage
     try:
@@ -37,12 +47,7 @@ def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) ->
     # get table column names
     names: list[str] = _get_table_header(table_name=table)
     # convert to dataframe
-    if num_rows is None:
-        ingest_pd: DataFrame = read_csv(filepath_or_buffer=file_loc, sep=",", header=None, names=names)
-    elif isinstance(num_rows, int) and num_rows > 0 and num_rows <= 1000:
-        ingest_pd: DataFrame = read_csv(filepath_or_buffer=file_loc, sep=",", header=None, names=names, nrows=num_rows)
-    else:
-        raise SyntaxError
+    ingest_pd: DataFrame = _ingest_csv_data(file_location=file_loc, names_list=names, num_rows=num_rows)
     # check data integrity
     if not len(names) == len(ingest_pd.columns):
         raise AttributeError
