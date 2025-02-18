@@ -21,7 +21,7 @@ def load_data_into_db(table_pd: DataFrame, table_name: str) -> int:
     return affected_rows        # type: ignore
 
 
-def dedupe_data_on_table(table_name: str):
+def dedupe_data_on_table(table_name: str) -> None:
     current_data: DataFrame = read_sql_table(table_name=table_name, con=db.engine)
     # get columns to check for duplicated values
     data_cols: list[str] = current_data.columns     # type: ignore

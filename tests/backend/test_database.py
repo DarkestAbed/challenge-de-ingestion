@@ -9,6 +9,9 @@ from app.backend.assets.config import DB_TYPE
 from app.backend.lib.database import Database
 
 
+TABLE_NAME: str = "jobs"
+
+
 def test_create_sqlite_db_object():
     db: Database = Database(db_type=DB_TYPE)        # type: ignore
     assert isinstance(db, Database)
@@ -41,6 +44,12 @@ def test_get_sqlite_db_tables():
     db: Database = Database(db_type=DB_TYPE)        # type: ignore
     result = db.get_tables()
     assert isinstance(result, list)
+
+
+def test_get_row_num_on_table():
+    db: Database = Database(db_type=DB_TYPE)        # type: ignore
+    result = db.get_row_cnt(table_name=TABLE_NAME)
+    assert isinstance(result, int) and result >= 0
 
 
 def test_heartbeat():

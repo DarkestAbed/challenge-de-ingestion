@@ -4,8 +4,8 @@ from dataclasses import dataclass
 from os import getcwd
 from os.path import exists, join
 from sqlite3 import connect, Connection
-from sqlalchemy import text, Engine
-from sqlmodel import SQLModel, Session, Field, create_engine
+from sqlalchemy import text, column, func, table, Engine
+from sqlmodel import SQLModel, Session, Table, Field, create_engine, select as select_sqlm
 from traceback import print_exc
 from typing import Any, Literal, Optional
 
@@ -112,6 +112,17 @@ class Database(metaclass=Singleton):
             existing_tables.append(table)
         icl(existing_tables)
         return existing_tables
+    
+    def get_row_cnt(self, table_name: str) -> int:
+        target_table: Optional[Table] = SQLModel.metadata.tables.get(table_name)
+        if target_table is None:
+            raise ValueError
+        with Session(self.engine) as session:
+            query_table = table(table_name, column("id"))
+            query = select_sqlm(func.count()).select_from(query_table)
+            count = session.exec(query).all()
+        icl(count, type(count))
+        return count[0]
 
     def query(self, query_str: str) -> Any:
         return ""
