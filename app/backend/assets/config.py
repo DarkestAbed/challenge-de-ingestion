@@ -21,4 +21,5 @@ DB_TYPE: str = "sqlite"
 # icecream
 icl = ic
 # locations
+INPUT_LOCATION: str = join(getcwd(), "app", "backend", "input")
 OUTPUT_LOCATION: str = join(getcwd(), "app", "backend", "output")
