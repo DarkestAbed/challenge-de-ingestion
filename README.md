@@ -53,7 +53,6 @@ Output example:
     * Given that the location of the files is not declared on the requirement, the API allows for file uploads and filesystem load triggering
     * No DAG-based orchestrator is deployed for this solution, but a possible and follow-up enhancement would be to orchestrate the load process
 * In regards of the SQL section, all relevant discussion can be found on the [functions README](app/backend/functions/README.md) file.
-* As an addition to the developed REST API, a frontend webapp is deployed to enable better interactions with the API
 
 ## Repo structure
 
@@ -62,7 +61,9 @@ app/                    :
 |- backend/             :
     |- assets/          :
     |- db/              :
+    |- documentation/   :
     |- functions/       :
+    |- input/           :
     |- lib/             :
     |- output/          :
     |- utils/           :
@@ -71,6 +72,7 @@ app/                    :
     |- Dockerfile       :
     |- main.py          :
     |- README.md        :
+    |- requirements.txt :
 |- frontend/            :
     |- .dockerignore    :
     |- Dockerfile       :
@@ -97,7 +99,6 @@ uv.lock                 :
 
 * **Language**: Python 3.13
 * **API development**: FastAPI
-* **Web development**: FastHTML
 * **Containerization**: Docker
 
 ## Automations
@@ -106,6 +107,10 @@ In this section the Makefile recipes are described.
 * `install-deps`: this recipe allows the `uv` dependency management workflow, by reading in `requirements.in`, compiling it to `requirements.txt` and then installing them on the current virtual environment.
 * `run-dev`: this recipe will run the development FastAPI server.
 * `run-tests`: this recipe will run **all** the tests found in the `tests/` folder, in separate streams for each folder.
+* `backend-docker`: this recipe will build the Docker image, and push it to the DockerHub registry.
+* `build-backend`: this recipe will run **the entire** backend build & push workflow.
+* `run-backendd`: this recipe will make the backend service available on a local environment, running the built image on Docker.
+* `full-backend-experience`: this recipe will build and run the backend service.
 
 ## Comments, issues and requests
 

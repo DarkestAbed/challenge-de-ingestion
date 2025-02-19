@@ -58,14 +58,14 @@ The Swagger documentation allows each and all endpoints to be tested in a graphi
 
 ![Swagger docs testing](documentation/image.png)
 
-### Frontend consumption
-
 ## Considerations, assumptions and rationale
 
 * The SQL database can be configured using environmental variables. The default engine is SQLite, but it can be extended to work with MySQL/MariaDB and PostgreSQL.
     * The extension to work as a DB-agnostic system is, at this moment, considered tech-debt, in order to deploy a working POC within 1 week of the initial requirements.
     * The agnostic capabilities are achieved throug a combination of `sqlmodel` and `sqlalchemy` libraries working in tandem.
-* Given the constraints provided on the requirements, the REST API has two main actionable endpoints to upload historic, CSV data to a database: POST  endpoint`/table/{tablename}`, and POST endpoint `/startAcquisiton`.
+* Given the constraints provided on the requirements, the REST API has two main actionable endpoints to upload historic, CSV data to a database: POST  endpoint`/table/{tablename}`, and POST endpoint `/etl/startAcquisiton`.
+    * The ETL process will try to run asynchronously, locking the process for further processing. This leverages FastAPI's (and Starlette's) `run_in_threadpool` async function.
+    * A specific process-checking GET endpoint is deployed, `/etl/check`, that will provide a status of the asynchronous `etl()` process.
 
 ## Tech stack
 

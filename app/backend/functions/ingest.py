@@ -29,7 +29,7 @@ def _ingest_csv_data(file_location: str, names_list: list[str], num_rows: Option
     return ingest_pd
 
 
-def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) -> tuple[DataFrame, str]:
+async def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) -> tuple[DataFrame, str]:
     # write file to tmp storage
     try:
         if file.filename is not None:
@@ -53,13 +53,3 @@ def ingest_file(file: UploadFile, table: str, num_rows: Optional[int] = None) ->
         raise AttributeError
     icl(ingest_pd)
     return (ingest_pd, file_loc)
-
-
-def main() -> None:
-    return None
-
-
-if __name__ == "__main__":
-    main()
-else:
-    pass

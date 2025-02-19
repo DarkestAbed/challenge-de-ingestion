@@ -2,6 +2,7 @@
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, HTTPException
+from fastapi.concurrency import run_in_threadpool
 from os import remove
 from pandas import DataFrame
 from traceback import print_exc
@@ -79,11 +80,11 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
     ## reading in
     try:
         if rows_to_ingest is None:
-            result: tuple[DataFrame, str] = ingest_file(file=file, table=tablename)
+            result: tuple[DataFrame, str] = await ingest_file(file=file, table=tablename)
         elif isinstance(rows_to_ingest, int):
             if rows_to_ingest < 0 or rows_to_ingest > 1000:
                 raise ValueError
-            result = ingest_file(file=file, table=tablename, num_rows=rows_to_ingest)
+            result = await ingest_file(file=file, table=tablename, num_rows=rows_to_ingest)
         ingested_data: DataFrame = result[0]
         file_location: str = result[1]
         icl(file_location)
@@ -104,7 +105,7 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
     try:
         affected_rows: int = load_data_into_db(table_pd=ingested_data, table_name=tablename)
         if dedupe:
-            dedupe_data_on_table(table_name=tablename)
+            _ = dedupe_data_on_table(table_name=tablename)
     except DatabaseException:
         raise HTTPException(status_code=500)
     except InsertException:
@@ -119,11 +120,14 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
 
 
 @app.post(path="/etl/startProcess")
-def _(init: bool):
+async def _(init: bool):
     if not init:
         raise HTTPException(status_code=400, detail="Process not started")
     try:
-        etl()
+        icl("Start await")
+        _ = await run_in_threadpool(etl)
+        # yield {"process": "etl", "status": "init"}
+        icl("End await")
     except RuntimeError:
         raise HTTPException(status_code=400, detail="A previous ETL is already running")
     except Exception as e:
@@ -131,6 +135,7 @@ def _(init: bool):
         print_exc()
         print("Something happened on the ETL process. Please review the logs and try again.")
         raise HTTPException(status_code=500)
+    icl("Return status")
     return {"process": "etl", "status": "init"}
 
 

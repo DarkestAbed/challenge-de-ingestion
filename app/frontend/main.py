@@ -1,6 +1,7 @@
 # app/frontend/main.py
 
 def main() -> None:
+    raise NotImplementedError
     return None
 
 
