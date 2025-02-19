@@ -4,11 +4,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, UploadFile, HTTPException
 from os import remove
 from pandas import DataFrame
+from traceback import print_exc
 from typing import Any, Optional
 
 from app.backend.assets.config import DB_TYPE, icl
 from app.backend.functions.ingest import ingest_file
 from app.backend.functions.load import load_data_into_db, dedupe_data_on_table
+from app.backend.functions.automated_etl import etl, check_process
 from app.backend.functions.lookup import get_data_snippet
 from app.backend.lib.database import Database
 from app.backend.lib.exceptions import DatabaseException, InsertException, UploadException
@@ -116,6 +118,26 @@ async def _(tablename: str, file: UploadFile, rows_to_ingest: Optional[int] = No
     return {"status": "upload complete", "requested_table": tablename, "affected_rows": affected_rows}
 
 
-@app.post(path="/startProcess")
-def _(init: bool) -> None:
-    return None
+@app.post(path="/etl/startProcess")
+def _(init: bool):
+    if not init:
+        raise HTTPException(status_code=400, detail="Process not started")
+    try:
+        etl()
+    except RuntimeError:
+        raise HTTPException(status_code=400, detail="A previous ETL is already running")
+    except Exception as e:
+        icl(e)
+        print_exc()
+        print("Something happened on the ETL process. Please review the logs and try again.")
+        raise HTTPException(status_code=500)
+    return {"process": "etl", "status": "init"}
+
+
+@app.get(path="/etl/check")
+async def _():
+    process_check: bool = check_process()
+    if process_check:
+        return {"process": "etl", "status": "done"}
+    else:
+        return {"process": "etl", "status": "running"}

@@ -19,8 +19,8 @@ class HiredEmployees(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     name: Optional[str]
     datetime: Optional[str]
-    department_id: int = Field(foreign_key="departments.id")
-    job_id: int = Field(foreign_key="jobs.id")
+    department_id: Optional[int] = Field(foreign_key="departments.id")
+    job_id: Optional[int] = Field(foreign_key="jobs.id")
 
 class Departments(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
