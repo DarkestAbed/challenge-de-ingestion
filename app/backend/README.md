@@ -28,7 +28,7 @@ If you'd prefer to run the software, locally, changing the available parameters 
 ### Dockerized installation
 
 ### Public hosting deployment
-This backend app is hosted on [Railway](https://railway.app), and you can access it through [this link](). The deployment located there is using a Docker image and default environment values.
+This backend app is hosted on [Railway](https://railway.app), and you can access its Swagger documentation through [this link](https://challenge-de-production.up.railway.app/docs). The deployment located there is using a Docker image and default environment values.
 
 ## Usage
 
