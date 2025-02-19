@@ -13,6 +13,8 @@ from app.backend.functions.ingest import ingest_file
 from app.backend.functions.load import load_data_into_db, dedupe_data_on_table
 from app.backend.functions.automated_etl import etl, check_process
 from app.backend.functions.lookup import get_data_snippet
+from app.backend.reports.employees_by_quarter import get_employees_by_quarter
+from app.backend.reports.hirings_by_department import get_mean_hires, get_departments_over_mean
 from app.backend.lib.database import Database
 from app.backend.lib.exceptions import DatabaseException, InsertException, UploadException
 
@@ -146,3 +148,21 @@ async def _():
         return {"process": "etl", "status": "done"}
     else:
         return {"process": "etl", "status": "running"}
+
+
+@app.get(path="/reports/employeesByQuarter")
+async def _():
+    results: DataFrame = get_employees_by_quarter()
+    return {"report": "employees by quarter on 2021", "results": results.to_dict(orient="records")}
+
+
+@app.get(path="/reports/meanEmployeesHired")
+async def _(year: int):
+    result: DataFrame = get_mean_hires(year=year)
+    return {"report": f"mean hired employees on {year}", "results": result.to_dict(orient="records")}
+
+
+@app.get(path="/reports/hiringsByDepartment")
+async def _():
+    result: DataFrame = get_departments_over_mean()
+    return {"report": "departments with hirings over mean on 2021", "results": result.to_dict(orient="records")}

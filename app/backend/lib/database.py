@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from os import getcwd
 from os.path import exists, join
+from pandas import DataFrame, read_sql
 from sqlite3 import connect, Connection
 from sqlalchemy import text, column, func, table, Engine
 from sqlmodel import SQLModel, Session, Table, Field, create_engine, select as select_sqlm
@@ -10,7 +11,7 @@ from traceback import print_exc
 from typing import Any, Literal, Optional
 
 from app.backend.assets.config import DB_URIS, icl
-from app.backend.lib.exceptions import DatabaseException
+from app.backend.lib.exceptions import DatabaseException, ForbiddenQueryException
 from app.backend.utils.singletons import Singleton
 
 
@@ -65,7 +66,7 @@ class Database(metaclass=Singleton):
             raise NotImplementedError
         print("Database successfully initialized.")
         return None
-    
+
     def check_connection(self) -> bool:
         with self.engine.connect() as conn:
             try:
@@ -76,7 +77,7 @@ class Database(metaclass=Singleton):
                 icl(e)
                 print_exc()
                 raise DatabaseException
-    
+
     def setup_db(self) -> None:
         icl(self.db_uri, self.db_loc, self.db_type, self.engine)
         if self.db_type == "sqlite":
@@ -94,7 +95,7 @@ class Database(metaclass=Singleton):
             print_exc()
             raise DatabaseException
         return None
-    
+
     def check_table(self, table_name: str) -> bool:
         icl(SQLModel.metadata.tables, SQLModel.metadata.tables.keys())
         tables: list[Any] = SQLModel.metadata.tables.keys()     # type: ignore
@@ -103,7 +104,7 @@ class Database(metaclass=Singleton):
             return True
         else:
             return False
-    
+
     def get_tables(self) -> list[str]:
         tables: list[Any] = SQLModel.metadata.tables.keys()     # type: ignore
         existing_tables: list[str] = []
@@ -112,7 +113,7 @@ class Database(metaclass=Singleton):
             existing_tables.append(table)
         icl(existing_tables)
         return existing_tables
-    
+
     def get_row_cnt(self, table_name: str) -> int:
         target_table: Optional[Table] = SQLModel.metadata.tables.get(table_name)
         if target_table is None:
@@ -125,7 +126,25 @@ class Database(metaclass=Singleton):
         return count[0]
 
     def query(self, query_str: str) -> Any:
-        return ""
-    
+        sg_insert: bool = "insert" in query_str.lower()
+        sg_delete: bool = "delete" in query_str.lower()
+        sg_drop: bool = "drop" in query_str.lower()
+        sg_truncate: bool = "truncate" in query_str.lower()
+        sg_create: bool = "create" in query_str.lower()
+        if \
+            sg_insert or \
+            sg_delete or \
+            sg_drop or \
+            sg_truncate or \
+            sg_create:
+            raise ForbiddenQueryException
+        parsed_query = text(query_str)
+        result: DataFrame = read_sql(sql=parsed_query, con=self.engine.connect(), index_col=None)
+        icl(result)
+        if len(result) == 0:
+            return None
+        elif len(result) > 0 and isinstance(result, DataFrame):
+            return result
+
     def heartbeat(self) -> bool:
         return self.check_connection()

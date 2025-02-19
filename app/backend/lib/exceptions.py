@@ -10,3 +10,7 @@ class UploadException(Exception):
 
 class InsertException(Exception):
     pass
+
+
+class ForbiddenQueryException(Exception):
+    pass

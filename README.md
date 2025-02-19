@@ -52,7 +52,7 @@ Output example:
     * The API is deployed using Python's FastAPI
     * Given that the location of the files is not declared on the requirement, the API allows for file uploads and filesystem load triggering
     * No DAG-based orchestrator is deployed for this solution, but a possible and follow-up enhancement would be to orchestrate the load process
-* In regards of the SQL section, all relevant discussion can be found on the [functions README](app/backend/functions/README.md) file.
+* In regards of the SQL section, all relevant discussion can be found on the [reports README](app/backend/reports/README.md) file.
 
 ## Repo structure
 
@@ -66,6 +66,7 @@ app/                    :
     |- input/           :
     |- lib/             :
     |- output/          :
+    |- reports/         :
     |- utils/           :
     |- __init__.py      :
     |- .dockerignore    :
@@ -117,3 +118,8 @@ In this section the Makefile recipes are described.
 All questions, requests and comments can be placed on the [Issues GitHub page](https://github.com/DarkestAbed/challenge-de-ingestion/issues).
 
 Also, if you want to contribute, you can fork the repo and [send a Pull Request](https://github.com/DarkestAbed/challenge-de-ingestion/pulls).
+
+## TODO: Tech debt
+
+- [ ] Develop and deploy a frontend web app for the REST API
+- [ ] Develop and deploy a CI/CD process, accounting for tests success
